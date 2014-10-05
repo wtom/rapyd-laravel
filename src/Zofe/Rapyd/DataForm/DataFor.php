@@ -556,7 +556,7 @@ class DataForm extends Widget
      */
     public function saved(\Closure $callable)
     {
-         $this->form_callable = $callable;
+        $this->form_callable = $callable;
     }
 
     /**
@@ -579,7 +579,7 @@ class DataForm extends Widget
     {
         $classname = '\Zofe\Rapyd\DataForm\Field\\'.ucfirst($name);
         $legacy = '\Zofe\Rapyd\DataForm\Field\\'.'add'.ucfirst($name);
-        
+
         if (class_exists($classname) || class_exists($legacy))
         {
             array_push($arguments, $name);
