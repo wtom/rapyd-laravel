@@ -3,7 +3,6 @@
 namespace Zofe\Rapyd;
 
 use Illuminate\Support\Facades\DB;
-//use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Paginator;
 use Zofe\Rapyd\Exceptions\DataSetException;
 
@@ -46,6 +45,9 @@ class DataSet extends Widget
         $ins = new static();
         $ins->source = $source;
 
+        \Event::listen('dataset.sort', array($ins, 'sort'));
+        \Event::listen('dataset.page', array($ins, 'page'));
+        
         //inherit cid from datafilter
         if ($ins->source instanceof \Zofe\Rapyd\DataFilter\DataFilter) {
             $ins->cid = $ins->source->cid;
@@ -66,43 +68,27 @@ class DataSet extends Widget
     }
 
     /**
-     * @param        $field
+     * @param string $field
      * @param string $dir
      *
      * @return mixed
      */
     public function orderbyLink($field, $dir = "asc")
     {
-        $url = ($dir == "asc") ? $this->orderby_uri_asc : $this->orderby_uri_desc;
-
-        return str_replace('-field-', $field, $url);
+        $dir = ($dir == "asc") ? '' : '-';
+        return Rapyd::linkRoute('orderby', array($dir, $field));
     }
 
     public function orderBy($field, $direction="asc")
     {
         $this->orderby = array($field, $direction);
-
         return $this;
     }
 
-    public function onOrderby($field, $direction="")
+    public function onOrderby($field, $dir="asc")
     {
-        $orderby = $this->url->value("ord" . $this->cid);
-        if ($orderby) {
-            $dir = ($orderby[0] === "-") ? "desc" : "asc";
-            if (ltrim($orderby,'-') == $field) {
-                return ($direction == "" || $dir == $direction) ? true : false;
-            }
-
-        } else {
-            if (count($this->orderby) && ($this->orderby[0] == $field)) {
-                $dir = $this->orderby[1];
-
-                return ($direction == "" || $dir == $direction) ? true : false;
-            }
-        }
-
-        return false;
+        $dir = ($dir == "asc") ? '' : '-';
+        return Rapyd::isRoute('orderby', array($dir, $field));
     }
 
     /**
@@ -119,6 +105,10 @@ class DataSet extends Widget
 
     public function build()
     {
+        \Event::flush('dataset.sort');
+        \Event::flush('dataset.page');
+        
+        
         if (is_string($this->source) && strpos(" ", $this->source) === false) {
             //tablename
             $this->type = "query";
@@ -155,18 +145,6 @@ class DataSet extends Widget
             throw new DataSetException(' "source" must be a table name, an eloquent model or an eloquent builder. you passed: ' . get_class($this->source));
         }
 
-        //build orderby urls
-        $this->orderby_uri_asc = $this->url->remove('page' . $this->cid)->remove('reset' . $this->cid)->append('ord' . $this->cid, "-field-")->get() . $this->hash;
-
-        $this->orderby_uri_desc = $this->url->remove('page' . $this->cid)->remove('reset' . $this->cid)->append('ord' . $this->cid, "--field-")->get() . $this->hash;
-
-        //detect orderby
-        $orderby = $this->url->value("ord" . $this->cid);
-        if ($orderby) {
-            $this->orderby_field = ltrim($orderby, "-");
-            $this->orderby_direction = ($orderby[0] === "-") ? "desc" : "asc";
-            $this->orderBy($this->orderby_field, $this->orderby_direction);
-        }
 
         //build subset of data
         switch ($this->type) {
@@ -212,6 +190,18 @@ class DataSet extends Widget
         return $this;
     }
 
+    public function sort($direction, $field)
+    {
+        $this->orderby_field = $field;
+        $this->orderby_direction = ($direction === "-") ? "desc" : "asc";
+        $this->orderBy($this->orderby_field, $this->orderby_direction);
+    }
+
+    public function page($page)
+    {
+        \Paginator::setCurrentPage($page);
+    }
+    
     /**
      * @return $this
      */
@@ -238,10 +228,9 @@ class DataSet extends Widget
     public function links($view = null)
     {
         if ($this->limit) {
-            if ($this->hash != '')
-                return $this->paginator->appends($this->url->remove('page')->getArray())->fragment($this->hash)->links($view);
-            else
-                return $this->paginator->appends($this->url->remove('page')->getArray())->links($view);
+            $links = $this->paginator->links($view);
+            $newlinks = preg_replace('@href="(.*\?page=(\d+))"@U',  'href="'.Rapyd::linkRoute('page', '$2').'"', $links);
+            return $newlinks;
         }
     }
 
@@ -249,5 +238,4 @@ class DataSet extends Widget
     {
         return (bool) $this->limit;
     }
-
 }

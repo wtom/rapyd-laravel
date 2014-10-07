@@ -3,6 +3,7 @@
 use Illuminate\Container\Container;
 use Illuminate\Support\Facades\HTML;
 use Illuminate\Support\Facades\Input;
+use Zofe\Rapyd\Router;
 
 class Rapyd
 {
@@ -147,6 +148,16 @@ class Rapyd
         }
 
         return $url;
+    }
+
+    public static function linkRoute($name, $params)
+    {
+        return Router::linkRoute($name, $params);
+    }
+    
+    public static function isRoute($name, $params)
+    {
+        return Router::isRoute($name, $params);
     }
 
     public static function setForm($form)
