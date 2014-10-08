@@ -38,7 +38,8 @@ class DataForm extends Widget
 
     public $model;
     public $model_relations;
-
+    public $validator; 
+    
     public $output = "";
     public $fields = array();
     public $hash = "";
