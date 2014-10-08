@@ -77,10 +77,78 @@ class DataEdit extends DataForm
     {
         $model = $this->model;
         $this->model = $model::find($id);
+        if (!$this->model->exists) $this->status = "unknow_record";
 
         return $this->model->exists;
     }
 
+    protected function save()
+    {
+        $result = parent::save();
+
+        if ($this->on("error")) {
+            $this->status = "create";
+        }
+        if ($this->on("success")) {
+            $this->status = "show";
+            if (in_array('insert',$this->back_on)) {
+                $this->redirect = $this->back_url;
+            } else {
+                $this->redirect = Rapyd::linkRoute('show', $this->model->getKey());
+            }
+        }
+    }
+    
+    protected function update($id)
+    {
+        $result = parent::save();
+        
+        if ($this->on("error")) {
+            $this->status = "modify";
+        }
+        if ($this->on("success")) {
+            $this->status = "modify";
+            if (in_array('update',$this->back_on)) {
+                $this->redirect = $this->back_url;
+            } else {
+                $this->redirect = Rapyd::linkRoute('show', $id); 
+            }
+        }
+    }
+
+    protected function delete($id)
+    {
+        $result = parent::save();
+
+        if ($this->on("error")) {
+            $this->status = "modify";
+        }
+        if ($this->on("success")) {
+            $this->status = "modify";
+            if (in_array('update',$this->back_on)) {
+                $this->redirect = $this->back_url;
+            } else {
+                $this->redirect = Rapyd::linkRoute('show', $id);
+            }
+        }
+    }
+    
+\Zofe\Rapyd\Router::get(null, 'delete=(\d+)', array('as'=>'delete', function($id) {
+    \Event::queue('dataedit.delete', $id);
+}));
+
+\Zofe\Rapyd\Router::delete(null, 'do_delete=(\d+)', array('as'=>'do_delete', function($id) {
+    \Event::queue('dataedit.do_delete', $id);
+}));
+
+    
+    
+    
+    
+    
+    
+    
+    
     /**
      * detect current action to execute by request method and qs
      * if needed it find the record for update/do_delete "action"
