@@ -150,12 +150,12 @@ class Rapyd
         return $url;
     }
 
-    public static function linkRoute($name, $params)
+    public static function linkRoute($name, $params = array())
     {
         return Router::linkRoute($name, $params);
     }
     
-    public static function isRoute($name, $params)
+    public static function isRoute($name, $params = array())
     {
         return Router::isRoute($name, $params);
     }

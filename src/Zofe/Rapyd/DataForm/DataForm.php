@@ -72,7 +72,7 @@ class DataForm extends Widget
     {
         $ins = new static();
         $ins->cid = $ins->getIdentifier();
-
+        $ins->status = "create";
         \Event::listen('dataform.save', array($ins, 'save'));
         
         return $ins;
@@ -87,8 +87,9 @@ class DataForm extends Widget
     public static function source($source = '')
     {
         $ins = new static();
-        if (is_object($source) && is_a($source, "\Illuminate\Database\Eloquent\Model")) {
+        if (is_object($source) && is_a($source, '\Illuminate\Database\Eloquent\Model')) {
             $ins->model = $source;
+            $ins->status = ($ins->model->exists) ? "modify" : "create";
         }
         $ins->cid = $ins->getIdentifier();
         
@@ -225,10 +226,11 @@ class DataForm extends Widget
                 $attributes[$field->name] = $field->label;
             }
         }
-        if (isset($rules)) {
-
+        if (!isset($this->validator)) {
             $this->validator = Validator::make(Input::all(), $rules, array(), $attributes);
-
+        }
+        if (isset($rules)) {
+            
             return !$this->validator->fails();
         } else {
             return true;
@@ -266,7 +268,6 @@ class DataForm extends Widget
     protected function buildFields()
     {
         $messages = (isset($this->validator)) ? $this->validator->messages() : false;
-
         foreach ($this->fields as $field) {
             $field->status = $this->status;
             $field->orientation = $this->orientation;
@@ -368,7 +369,6 @@ class DataForm extends Widget
     public function build($view = '')
     {
         \Event::flush('dataform.save');
-        
         if (isset($this->attributes['class']) and strpos($this->attributes['class'], 'form-inline') !== false) {
             $this->view = 'rapyd::dataform_inline';
             $this->orientation = 'inline';

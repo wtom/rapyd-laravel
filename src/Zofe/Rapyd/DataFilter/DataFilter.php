@@ -35,6 +35,7 @@ class DataFilter extends DataForm
                                   is_a($source, "\Illuminate\Database\Eloquent\Model"))) {
             $ins->model = $source->getModel();
         }
+        $ins->status = 'create';
         $ins->cid = $ins->getIdentifier();
         $ins->sniffStatus();
         $ins->sniffAction();
