@@ -258,4 +258,8 @@ class DataGrid extends DataSet
         return \Str::words(nl2br(htmlspecialchars($string)), 30);
     }
 
+    public function rowCount()
+    {
+	return count($this->rows);
+    }
 }
