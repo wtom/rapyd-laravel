@@ -52,6 +52,6 @@
 
 @else
 
-	<h4>{{ Lang::get('reminders.empty_list') }}</h4>
+	<h4>List is empty , Add records </h4>
 
 @endif
