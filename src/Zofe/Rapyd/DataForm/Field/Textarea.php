@@ -1,6 +1,6 @@
 <?php namespace Zofe\Rapyd\DataForm\Field;
 
-use Illuminate\Support\Facades\Form;
+use Illuminate\Html\FormFacade as Form;
 
 class Textarea extends Field
 {
@@ -16,9 +16,9 @@ class Textarea extends Field
       case "disabled":
       case "show":
 
-		if ($this->type =='hidden' || $this->value == "") {
+        if ($this->type =='hidden' || $this->value == "") {
           $output = "";
-		} elseif ( (!isset($this->value)) ) {
+        } elseif ( (!isset($this->value)) ) {
           $output = $this->layout['null_label'];
         } else {
           $output = nl2br(htmlspecialchars($this->value));

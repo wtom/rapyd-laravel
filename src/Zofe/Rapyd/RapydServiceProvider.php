@@ -19,10 +19,21 @@ class RapydServiceProvider extends ServiceProvider
      */
     public function boot()
     {
+        // $this->package('zofe/rapyd', 'rapyd');
+        $this->loadViewsFrom(__DIR__.'/../../views', 'rapyd');
+
+        // Publish a config file
+        $this->publishes([
+            __DIR__.'/../../config/config.php', config_path('rapyd.php'),
+            __DIR__.'/../../../public/assets/', public_path('packages/zofe/rapyd')
+        ]);
+
+        $this->mergeConfigFrom(
+            __DIR__.'/../../config/config.php', 'rapyd'
+        );
 
         include __DIR__ . '/../../routes.php';
         include __DIR__ . '/../../macro.php';
-
     }
 
     /**
@@ -35,12 +46,12 @@ class RapydServiceProvider extends ServiceProvider
         Rapyd::setContainer($this->app);
 
         $this->app->booting(function () {
-            $loader = \Illuminate\Foundation\AliasLoader::getInstance();
-            $loader->alias('Rapyd', 'Zofe\Rapyd\Facades\Rapyd');
-            $loader->alias('DataSet', 'Zofe\Rapyd\Facades\DataSet');
-            $loader->alias('DataGrid', 'Zofe\Rapyd\Facades\DataGrid');
-            $loader->alias('DataForm', 'Zofe\Rapyd\Facades\DataForm');
-            $loader->alias('DataEdit', 'Zofe\Rapyd\Facades\DataEdit');
+            $loader  =  \Illuminate\Foundation\AliasLoader::getInstance();
+            $loader->alias('Rapyd'     , 'Zofe\Rapyd\Facades\Rapyd'     );
+            $loader->alias('DataSet'   , 'Zofe\Rapyd\Facades\DataSet'   );
+            $loader->alias('DataGrid'  , 'Zofe\Rapyd\Facades\DataGrid'  );
+            $loader->alias('DataForm'  , 'Zofe\Rapyd\Facades\DataForm'  );
+            $loader->alias('DataEdit'  , 'Zofe\Rapyd\Facades\DataEdit'  );
             $loader->alias('DataFilter', 'Zofe\Rapyd\Facades\DataFilter');
             $loader->alias('Documenter', 'Zofe\Rapyd\Facades\Documenter');
         });

@@ -255,11 +255,7 @@ class DataGrid extends DataSet
 
     protected function sanitize($string)
     {
-        return \Str::words(nl2br(htmlspecialchars($string)), 30);
+        return str_limit(nl2br(htmlspecialchars($string)), 30);
     }
 
-    public function rowCount()
-    {
-	return count($this->rows);
-    }
 }

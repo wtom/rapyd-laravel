@@ -2,7 +2,7 @@
 
 namespace Zofe\Rapyd\DataForm\Field;
 
-use Illuminate\Support\Facades\Form;
+use Illuminate\Html\FormFacade as Form;
 use Zofe\Rapyd\Rapyd;
 
 class Date extends Field
@@ -48,10 +48,10 @@ class Date extends Field
     protected function humanDateToIso($humandate)
     {
         $datetime = \DateTime::createFromFormat( $this->format, $humandate);
-        if (!$datetime) return '';
+        if (!$datetime) return null;
         $timestamp = $datetime->getTimestamp();
         if ($timestamp < 1) {
-            return "";
+            return null;
         }
         $humandate = date('Y-m-d', $timestamp);
 

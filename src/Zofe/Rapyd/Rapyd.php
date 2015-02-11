@@ -1,17 +1,17 @@
 <?php namespace Zofe\Rapyd;
 
 use Illuminate\Container\Container;
-use Illuminate\Support\Facades\HTML;
+use Illuminate\Html\HtmlFacade as HTML;;
 use Illuminate\Support\Facades\Input;
 
 class Rapyd
 {
 
     protected static $container;
-    protected static $js = array();
-    protected static $css = array();
-    protected static $scripts = array();
-    protected static $styles = array();
+    protected static $js         = array();
+    protected static $css        = array();
+    protected static $scripts    = array();
+    protected static $styles     = array();
     protected static $form;
 
     /**

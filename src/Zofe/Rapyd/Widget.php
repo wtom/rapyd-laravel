@@ -1,27 +1,29 @@
 <?php namespace Zofe\Rapyd;
 
-use Illuminate\Support\Facades\Form;
-use Illuminate\Support\Facades\HTML;
+use Illuminate\Html\FormFacade as Form;
+use Illuminate\Html\HtmlFacade as HTML;;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Request;
 
 class Widget
 {
 
-    public static $identifier = 0;
-    public $label = "";
-    public $output = "";
-    public $built = false;
+    public $label             = "";
+    public $output            = "";
+    public $built             = false;
     public $url;
-    public $attributes = array();
+    public $attributes        = array();
 
-    public $process_status = "idle";
-    public $status = "idle";
-    public $action = "idle";
+    public $process_status    = "idle";
+    public $status            = "idle";
+    public $action            = "idle";
 
-    public $button_container = array( "TR"=>array(), "BL"=>array(), "BR"=>array() );
-    public $message = "";
-    public $links = array();
+    // TR: Top right - BL: Bottom left - BR: Bottom right
+    public $button_container  = array( "TR"=>array(), "BL"=>array(), "BR"=>array() );
+    public $message           = "";
+    public $links             = array();
+
+    public static $identifier = 0;
 
     public function __construct()
     {

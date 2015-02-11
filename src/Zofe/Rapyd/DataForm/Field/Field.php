@@ -451,9 +451,9 @@ abstract class Field extends Widget
                 || $this->model->hasSetMutator($this->db_name))
                 || is_a($this->relation, 'Illuminate\Database\Eloquent\Relations\HasOne')
                 ) {
-                
+
                 $self = $this; //fix old 5.3 you can't pass this in a closure
-                $this->model->saved(function () use($self) {
+                $this->model->saved(function () use ($self) {
                     $self->updateRelations();
                 });
 
@@ -461,11 +461,11 @@ abstract class Field extends Widget
                 return true;
             }
 
-            if (isset($this->new_value)) {
-                $this->model->setAttribute($this->db_name, $this->new_value);
-            } else {
-                $this->model->setAttribute($this->db_name, $this->value);
-            }
+            //if (isset($this->new_value)) {
+            $this->model->setAttribute($this->db_name, $this->new_value);
+            //} else {
+            //    $this->model->setAttribute($this->db_name, $this->value);
+            //}
             if ($save) {
                 return $this->model->save();
             }
@@ -595,9 +595,10 @@ abstract class Field extends Widget
         if ($this->has_error) {
             return $error;
         }
+
         return '';
     }
-    
+
     public function all()
     {
         $output  = "<label for=\"{$this->name}\" class=\"{$this->req}\">{$this->label}</label>";

@@ -2,7 +2,8 @@
 
 namespace Zofe\Rapyd\DataForm\Field;
 
-use Illuminate\Support\Facades\Form;
+
+use Illuminate\Html\FormFacade as Form;
 use Illuminate\Support\Facades\Input;
 
 class File extends Field
@@ -36,20 +37,11 @@ class File extends Field
         if ((($this->action == "update") || ($this->action == "insert"))) {
 
             if (Input::hasFile($this->name)) {
-
-                $this->path = $this->parseString($this->path);
-
-		// unlink old file if remove checkbox is checked
-                if (Input::get($this->name . "_remove")) {
-                    if ($this->unlink_file) {
-                        @unlink(public_path() . '/' . $this->path . $this->old_value);
-                    }
-		}
-
                 $this->file = Input::file($this->name);
 
                 $filename = ($this->filename!='') ?  $this->filename : $this->file->getClientOriginalName();
 
+                $this->path =  $this->parseString($this->path);
                 $filename = $this->parseString($filename);
                 $filename = $this->sanitizeFilename($filename);
                 $this->new_value = $filename;
