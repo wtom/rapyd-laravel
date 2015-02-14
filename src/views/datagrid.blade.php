@@ -1,11 +1,6 @@
 
 
 @include('rapyd::toolbar', array('label'=>$label, 'buttons_right'=>$buttons['TR']))
-
-<div class="pull-right">
-    <a href="edit" class="btn btn-primary">Add</a>
-</div>
-
 <table{!! $dg->buildAttributes() !!}>
     <thead>
     <tr>

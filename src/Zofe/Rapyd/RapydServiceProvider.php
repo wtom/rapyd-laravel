@@ -31,7 +31,6 @@ class RapydServiceProvider extends ServiceProvider
         $this->mergeConfigFrom(
             __DIR__.'/../../config/config.php', 'rapyd'
         );
-
         include __DIR__ . '/../../routes.php';
         include __DIR__ . '/../../macro.php';
     }
