@@ -68,7 +68,10 @@ class DataGrid extends DataSet
             $this->rows[] = $row;
         }
 
-        return \View::make($view, array('dg' => $this, 'buttons'=>$this->button_container, 'label'=>$this->label));
+        $routeParamters = \Route::current()->parameters();
+
+        return \View::make($view, array('dg' => $this, 'buttons'=>$this->button_container, 'label'=>$this->label,
+					'current_entity' => $routeParamters['entity']));
     }
 
     public function buildCSV($file = '', $timestamp = '', $sanitize = true,$del = array())

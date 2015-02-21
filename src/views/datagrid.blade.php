@@ -3,7 +3,7 @@
 @include('rapyd::toolbar', array('label'=>$label, 'buttons_right'=>$buttons['TR']))
 <table{!! $dg->buildAttributes() !!}>
     <div class="pull-right">
-        <a href="edit" class="btn btn-primary">Add</a>
+        <a href="{!! url('panel/'.$current_entity.'/edit') !!}" class="btn btn-primary">Add</a>
     </div>
     <thead>
     <tr>
