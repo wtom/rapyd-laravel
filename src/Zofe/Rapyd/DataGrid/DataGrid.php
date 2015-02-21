@@ -195,11 +195,11 @@ class DataGrid extends DataSet
             $value =  '<a href="'.$this->parser->compileString($column->link, $array).'">'.$value.'</a>';
         }
         if (count($column->actions)>0) {
-            $key = ($column->key != '') ?  $column->key : $this->key;
-            $keyvalue = @$tablerow->{$key};
-
-            $value = \View::make('rapyd::datagrid.actions', array('uri' => $column->uri, 'id' => $keyvalue, 'actions' => $column->actions));
-
+            $key 	    = ($column->key != '') ?  $column->key : $this->key;
+            $keyvalue 	    = @$tablerow->{$key};
+            $routeParamters = \Route::current()->parameters();
+            $value = \View::make('rapyd::datagrid.actions', array('uri' => $column->uri, 'id' => $keyvalue, 'actions' => $column->actions,
+								  'current_entity' => $routeParamters['entity']));
         }
 
         return $value;
