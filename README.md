@@ -8,14 +8,22 @@ rapyd-laravel
     <img src="http://img.shields.io/packagist/dt/zofe/rapyd.svg?style=flat" style="vertical-align: text-top">
 </a>
 
-This is a pool of presentation and editing widgets (Grids and Forms) for laravel 4.  
+This is a pool of presentation and editing widgets (Grids and Forms) for laravel.  
 Nothing to "generate", just some classes to let you develop and maintain CRUD backends in few lines of code.  
+  
+ Main Website: [rapyd.com](http://www.rapyd.com)  
+ Demo: [rapyd.com/demo](http://www.rapyd.com/demo)  
+ Documentation: [Wiki](https://github.com/zofe/rapyd-laravel/wiki)  
  
-Main Website: [rapyd.com](http://www.rapyd.com)  
-Demo: [rapyd.com/demo](http://www.rapyd.com/demo)  
-Documentation: [Wiki](https://github.com/zofe/rapyd-laravel/wiki)  
-
 ![rapyd laravel](https://raw.github.com/zofe/rapyd-laravel/master/public/assets/rapyd-laravel.png)
+ 
+## important notice:
+
+dev-master switched to laravel 5  
+if you are on laravel 4 you must use 1.3.* tags (see at bottom)
+
+The Wiki documentation is for Laravel 4 version, but changes are minimal, mainly related to Blade.  
+(you should use {!! $widget !!}  instead  {{ $widget }} etc..
 
 
 ## DataGrid
@@ -47,8 +55,11 @@ in a controller
 in a view you can just write
 
 ```php
-  #articles.blade.php
-  {{ $grid }}
+
+  #articles.blade.php  
+  {{ $grid }} for L4   
+  {!! $grid !!} for L5  
+
 ```
 
 
@@ -123,7 +134,8 @@ datagrid supports also csv output, so it can be used as "report" tool.
 
 ```php
    #article.blade.php
-  {{ $form }}
+  {{ $form }}  for L4  
+  {!! $form !!}  for L5
 ```
 
 [DataForm explained](https://github.com/zofe/rapyd-laravel/wiki/DataForm)  
@@ -192,7 +204,9 @@ You can directly customize form  using build() in your controller
 
 ```php
    #crud.blade.php
-  {{ $edit }}
+   
+  {{ $edit }} for L4   
+  {!! $edit !!} for L5
 ```
 [DataEdit explained](https://github.com/zofe/rapyd-laravel/wiki/DataEdit)  
 
@@ -216,22 +230,30 @@ It should be used in conjunction with a DataSet or DataGrid to filter results.
 
    View::make('articles', compact('filter', 'grid'))
 ```
+
 ```php
    # articles.blade
-   {{ $filter }}
-   {{ $grid }}
+   
+   //for L4  
+   {{ $filter }}  
+   {{ $grid }}  
+
+    //for L5 
+   {!! $filter !!}  
+   {!! $grid !!}
+
 ```
 
 [DataFilter explained](https://github.com/zofe/rapyd-laravel/wiki/DataFilter)  
 [Custom layout and custom query scope](http://www.rapyd.com/rapyd-demo/customfilter) 
 
 
-## Install in Laravel 4.1 & 4.2
+## Install in Laravel 4.* and 5.0
 
 
 To `composer.json` add:  
-`"zofe/rapyd": "1.3.*"` for both, not frequently updated (should be stable)  
-`"zofe/rapyd": "dev-master"` for both, with latest stuffs (may be unstable)  
+`"zofe/rapyd": "1.3.*"` for Laravel 4, not frequently updated (should be stable)  
+`"zofe/rapyd": "2.0.*"` or _dev-master_ for Laravel 5 (kudos to @tiger2wander for PR)
 
 
 In `app/config/app.php` add:  
@@ -240,26 +262,21 @@ In `app/config/app.php` add:
 then run: `$ composer update zofe/rapyd`.
 
 
-## Publish & override configuration (optional)
+## Publish & override configuration and assets
 
 You can quickly publish the configuration file (to override something) 
 by running the following Artisan command.  
 
-    $ php artisan config:publish zofe/rapyd
+Laravel 4
 
-## Publish & integrate assets (needed)
-
-
-You need to publish the assets from this package.
-
+    $ php artisan config:publish zofe/rapyd  
     $ php artisan asset:publish zofe/rapyd
 
-Note: The public assets can change overtime (because of upstream changes), it is recommended to re-publish them after update.  
-Alternatively you can add the publish command in composer.json.
 
-    "post-update-cmd": [
-        "php artisan asset:publish zofe/rapyd"
-    ],
+Laravel 5
+
+    $ php artisan vendor:publish  
+    
 
 
 You need also to add this to your views, to let rapyd add runtime assets:
@@ -271,7 +288,9 @@ You need also to add this to your views, to let rapyd add runtime assets:
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-{{ Rapyd::head() }}
+{{ Rapyd::head() }}  for L4   
+{!! Rapyd::head() !!}  for L5
+
 </head>
 ```
 note: widget output is in standard with __Boostrap 3+__, and some widget need support of __JQuery 1.9+__
@@ -313,18 +332,16 @@ An easy way to work with rapyd is:
 Rapyd comes with demo (controller, models, views)  to run it just add:
 
 
-/app/routes.php
+/app/routes.php  (Laravel 4)
 ```php
-...
+....
 Route::controller('rapyd-demo', 'Zofe\\Rapyd\\Controllers\\DemoController');
 ```
+for Laravel 5 the route is already defined.
 
 then go to:
 
 /rapyd-demo
-
-or use the one that is online:  
-[http://rapyd.com/rapyd-demo](http://www.rapyd.com/rapyd-demo)
 
 
 
