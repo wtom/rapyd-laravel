@@ -1,13 +1,12 @@
-
-
 @include('rapyd::toolbar', array('label'=>$label, 'buttons_right'=>$buttons['TR']))
 
-@if ($dg->rowCount())
+<table{!! $dg->buildAttributes() !!}>
 
-	<table{!! $dg->buildAttributes() !!}>
-		<div class="pull-right">
-        		<a href="{!! url('panel/'.$current_entity.'/edit') !!}" class="btn btn-primary">Add</a>
-		</div>
+	<div class="pull-right">
+        	<a href="{!! url('panel/'.$current_entity.'/edit') !!}" class="btn btn-primary">Add</a>
+	</div>
+
+	@if ($dg->rowCount())
     		<thead>
 			<tr>
 				@foreach ($dg->columns as $column)
@@ -42,13 +41,13 @@
 			        </tr>
 			@endforeach
 		</tbody>
-	</table>
-
-	@if ($dg->havePagination())
-		<div class="pagination">
-			{!! $dg->links() !!}
-		</div>
+	@else
+		<h4>{{ Lang::get('rapyd::rapyd.empty_list') }}</h4>
 	@endif
-@else
-	<h4>{{ Lang::get('rapyd::rapyd.empty_list') }}</h4>
+</table>
+
+@if ($dg->havePagination())
+	<div class="pagination">
+		{!! $dg->links() !!}
+	</div>
 @endif
