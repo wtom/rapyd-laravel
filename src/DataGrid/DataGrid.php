@@ -261,4 +261,8 @@ class DataGrid extends DataSet
         return str_limit(nl2br(htmlspecialchars($string)), 30);
     }
 
+    public function rowCount()
+    {
+	return count($this->rows);
+    }
 }
