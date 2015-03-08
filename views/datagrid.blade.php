@@ -50,5 +50,5 @@
 		</div>
 	@endif
 @else
-	<h4>{{ Lang::get('reminders.empty_list') }}</h4>
+	<h4>{{ Lang::get('rapyd::rapyd.empty_list') }}</h4>
 @endif

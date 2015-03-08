@@ -19,5 +19,5 @@ return array(
     'err_unknown'=> 'Ошибка, нет записи, выбранные.',
     'err_dup_pk' => 'Ошибка, дублируется первичный ключ.',
     'conf_delete'=> 'Вы хотите удалить запись?',
-
+    'empty_list' => 'No record is added !'
 );

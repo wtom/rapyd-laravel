@@ -19,5 +19,5 @@ return array(
     'err_unknown'=> 'Erro, registro não selecionado',
     'err_dup_pk' => 'Erro, chave primária duplicada',
     'conf_delete'=> 'Você tem certeza que deseja eliminar o registro?',
-
+    'empty_list' => 'No record is added !'
 );

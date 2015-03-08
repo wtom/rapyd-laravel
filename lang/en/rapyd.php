@@ -19,5 +19,5 @@ return array(
     'err_unknown'=> 'Error, no record selected',
     'err_dup_pk' => 'Error, duplicated primary key',
     'conf_delete'=> 'Do you want to eliminate the record?',
-
+    'empty_list' => 'No record is added !'
 );

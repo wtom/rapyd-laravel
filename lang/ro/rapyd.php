@@ -19,5 +19,5 @@ return array(
     'err_unknown'=> 'Eroare! Nu a fost selectată nici o înregistrare',
     'err_dup_pk' => 'Eroare! Cheie primară duplicat',
     'conf_delete'=> 'Sunteți sigur că doriți să stergeți această înregistrare?',
-
+    'empty_list' => 'No record is added !'
 );

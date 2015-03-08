@@ -19,5 +19,5 @@ return array(
     'err_unknown'=> 'خطأ, لم يتم إختيار أي سجل',
     'err_dup_pk' => 'خطأ، المفتاح الأساسي مكرّر',
     'conf_delete'=> 'هل أنت متأكّد من حذف السجل؟',
-
+    'empty_list' => 'No record is added !'
 );
