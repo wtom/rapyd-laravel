@@ -31,7 +31,7 @@ class Redactor extends Field
 
         Rapyd::js('tinymce/tinymce.min.js');
         $output  = Form::textarea($this->name, $this->value, $this->attributes);
-        Rapyd::script("tinymce.init({selector: '".$this->name."'});");
+        Rapyd::script("tinymce.init({selector: '#".$this->name."'});");
 
         break;
 
