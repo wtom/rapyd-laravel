@@ -29,11 +29,9 @@ class Redactor extends Field
       case "create":
       case "modify":
 
-        Rapyd::js('redactor/jquery.browser.min.js');
-        Rapyd::js('redactor/redactor.min.js');
-        Rapyd::css('redactor/css/redactor.css');
+        Rapyd::js('tinymce/tinymce.min.js');
         $output  = Form::textarea($this->name, $this->value, $this->attributes);
-        Rapyd::script("$('#".$this->name."').redactor();");
+        Rapyd::script("tinymce.init({selector: '#".$this->name."'});");
 
         break;
 
