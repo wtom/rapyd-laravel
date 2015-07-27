@@ -1,5 +1,5 @@
 @if (in_array("show", $actions))
-    <a class="" title="@lang('rapyd::rapyd.show')" href="{!! url('panel/'.$current_entity.'/'.$uri) !!}?show={!! $id !!}"><span class="ic-globe"> </span></a>
+    <a class="" title="@lang('rapyd::rapyd.show')" href="{!! url('panel/'.$current_entity.'/'.$uri) !!}?show={!! $id !!}"><span class="glyphicon glyphicon-list-alt"> </span></a>
 @endif
 @if (in_array("modify", $actions))
     <a class="" title="@lang('rapyd::rapyd.modify')" href="{!! url('panel/'.$current_entity.'/'.$uri) !!}?modify={!! $id !!}"><span class="fa fa-edit"> </span></a>
