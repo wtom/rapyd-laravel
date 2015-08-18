@@ -11,35 +11,47 @@ class Daterange extends Date
     public $type = "daterange";
     public $multiple = true;
     public $clause = "wherebetween";
-
-    public function getValue()
+    
+    public function getNewValue()
     {
-        parent::getValue();
-        $this->values = explode($this->serialization_sep, $this->value);
+        Field::getNewValue();
+        $this->values = explode($this->serialization_sep, $this->new_value);
         foreach ($this->values as $value) {
             $values[] = $this->humanDateToIso($value);
         }
 
         if (isset($values)) {
-            $this->value = implode($this->serialization_sep, $values);
+            $this->new_value = implode($this->serialization_sep, $values);
         }
-
     }
 
+
+    public function getValue()
+    {
+        Field::getValue();
+        $this->values = explode($this->serialization_sep, $this->value);
+        foreach ($this->values as $value) {
+            $values[] = $this->isoDateToHuman($value);
+        }
+        if (isset($values)) {
+            $this->value = implode($this->serialization_sep, $values);
+        }
+    }
+    
     public function build()
     {
         $output = "";
 
         unset($this->attributes['type']);
         if (parent::build() === false) return;
-
+        
         switch ($this->status) {
 
             case "show":
                 if (!isset($this->value)) {
                     $value = $this->layout['null_label'];
                 } else {
-                    $value = $this->isoDateToHuman($this->value);
+                    $value = str_replace($this->serialization_sep, ' ', $this->value);
                 }
                 $output = $value;
                 $output = "<div class='help-block'>" . $output . "&nbsp;</div>";
@@ -47,11 +59,7 @@ class Daterange extends Date
 
             case "create":
             case "modify":
-                if ($this->value != "") {
-                    if (!$this->is_refill) {
-                        $this->value = $this->isoDateToHuman($this->value);
-                    }
-                }
+
 
                 Rapyd::css('datepicker/datepicker3.css');
                 Rapyd::js('datepicker/bootstrap-datepicker.js');
@@ -63,8 +71,8 @@ class Daterange extends Date
                 //$this->attributes['class'] = "form-control";
 
 
-                $from = Form::text($this->name . '[]', @$this->values[0], $this->attributes);
-                $to = Form::text($this->name . '[]', @$this->values[1], $this->attributes);
+                $from = Form::text($this->name . '[from]', @$this->values[0], $this->attributes);
+                $to = Form::text($this->name . '[to]', @$this->values[1], $this->attributes);
 
                 $output = '
                             <div id="range_' . $this->name . '_container">

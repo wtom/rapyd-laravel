@@ -187,10 +187,10 @@ class DataForm extends Widget
      *
      * @return $this
      */
-    public function reset($name = "", $position = "BL")
+    public function reset($name = "", $position = "BL", $options = array())
     {
         if ($name == "") $name = trans('rapyd::rapyd.reset');
-        $this->link($this->url->current(true), $name, $position);
+        $this->link($this->url->current(true), $name, $position, $options);
 
         return $this;
     }
@@ -387,6 +387,11 @@ class DataForm extends Widget
                 }
                 if (isset($this->model)) {
                     $return = $this->model->save();
+                    if (is_null($return)) {
+                        // in the cases where an error has not been returned, but a record has been inserted or updated
+                        // the model->save() method returns null which need to interpret as success
+                        $return = true;
+                    }
                 } else {
                     $return = true;
                 }
@@ -510,17 +515,19 @@ class DataForm extends Widget
     public function __toString()
     {
         if ($this->output == "") {
+
+            //to avoid the error "toString() must not throw an exception"
+            //http://stackoverflow.com/questions/2429642/why-its-impossible-to-throw-exception-from-tostring/27307132#27307132
             try {
                 $this->getForm();
             }
-                //to avoid the error "toString() must not throw an exception" (PHP limitation)
-                //just return error as string
             catch (\Exception $e) {
-                return '<div class="alert alert-danger">'.
-                $e->getMessage() ."<br>\n".
-                "File: <small>".$e->getFile() . "</small><br>\n".
-                "Line: " . $e->getLine().'</div>';
+                $previousHandler = set_exception_handler(function (){ });
+                restore_error_handler();
+                call_user_func($previousHandler, $e);
+                die;
             }
+
         }
 
         return $this->output;

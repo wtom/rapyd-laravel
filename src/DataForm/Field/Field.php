@@ -82,7 +82,7 @@ abstract class Field extends Widget
     {
         parent::__construct();
 
-        $this->attributes = Config::get('rapyd::field.attributes');
+        $this->attributes = Config::get('rapyd.field.attributes');
         $this->model = $model;
         $this->model_relations = $model_relations;
 
@@ -361,6 +361,10 @@ abstract class Field extends Widget
             $this->new_value = $this->update_value;
         } else {
             $this->action = "idle";
+        }
+
+        if ($this->new_value == "") {
+            $this->new_value = null;
         }
     }
 
