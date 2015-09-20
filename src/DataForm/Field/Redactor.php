@@ -46,7 +46,7 @@ class Redactor extends Field
 		      "});" .
 		      "return false;" .
 		      "}");
-        Rapyd::script("tinymce.init({selector: '#".$this->name."', file_browser_callback : elFinderBrowser, plugins: 'image'});");
+        Rapyd::script("tinymce.init({selector: '#".$this->name."', file_browser_callback : elFinderBrowser, plugins: 'image', convert_urls: false});");
         break;
 
       case "hidden":
