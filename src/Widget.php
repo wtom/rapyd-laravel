@@ -1,6 +1,6 @@
 <?php namespace Zofe\Rapyd;
 
-use Illuminate\Html\FormFacade as Form;
+use Collective\Html\FormFacade as Form;
 use Illuminate\Html\HtmlFacade as HTML;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Request;

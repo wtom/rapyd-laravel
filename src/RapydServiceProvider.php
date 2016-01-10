@@ -40,7 +40,7 @@ class RapydServiceProvider extends ServiceProvider
      */
     public function register()
     {
-        $this->app->register('Illuminate\Html\HtmlServiceProvider');
+        $this->app->register('Collective\Html\HtmlServiceProvider');
  
         Rapyd::setContainer($this->app);
    
