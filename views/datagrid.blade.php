@@ -3,7 +3,7 @@
 <table{!! $dg->buildAttributes() !!}>
 
 	<div class="pull-right">
-        	<a href="{!! url('panel/'.$current_entity.'/edit') !!}" class="btn btn-primary">Add</a>
+        	<a href="{!! url('panel/'.$current_entity.'/edit') !!}" class="btn btn-primary">{{ trans('rapyd::rapyd.add') }}</a>
 	</div>
 
 	@if ($dg->rowCount())

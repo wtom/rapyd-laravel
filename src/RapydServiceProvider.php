@@ -23,22 +23,13 @@ class RapydServiceProvider extends ServiceProvider
         $this->publishes([
             __DIR__.'/../config/rapyd.php' => config_path('rapyd.php'),
         ], 'config');
-        
-        $this->publishes([
-            __DIR__.'/routes.php' => app_path('/Http/rapyd.php'),
-        ], 'routes');
+
 
         $this->mergeConfigFrom(
             __DIR__.'/../config/rapyd.php', 'rapyd'
         );
 
-        if (file_exists($file = app_path('/Http/rapyd.php')))
-        {
-            include $file;
-        } else {
-            include __DIR__ . '/routes.php';
-        }
-       
+        include __DIR__ . '/routes.php';
         include __DIR__ . '/macro.php';
     }
 
@@ -50,8 +41,7 @@ class RapydServiceProvider extends ServiceProvider
     public function register()
     {
         $this->app->register('Illuminate\Html\HtmlServiceProvider');
-        $this->app->register('Zofe\Burp\BurpServiceProvider');
-        
+ 
         Rapyd::setContainer($this->app);
    
         $this->app->booting(function () {

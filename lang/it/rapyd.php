@@ -19,5 +19,7 @@ return array(
     'err_unknown'=> 'Si è verificato un errore, nessun record su cui operare.',
     'err_dup_pk' => 'Si è verificato un errore, chiave primaria non univoca.',
     'conf_delete'=> 'Vuoi davvero eliminare il record corrente?',
-    'empty_list' => 'No record is added !'
+    'empty_list' => 'No record is added !',
+    'help'       => 'Help',
+    'links_help' => "The 'Edit Links' form is used for adding a link in the sidebar menu of panel. The value of 'Display' field specifies the label of the link to be displayed in the menu and the value of 'Link' field specifies the name of the model."
 );

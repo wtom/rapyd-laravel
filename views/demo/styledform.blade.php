@@ -40,12 +40,12 @@
 
                     <div class="col-sm-8">
 
-<<<<<<< HEAD
+
                          Body: {!! $form->field('body') !!}<br />
 
-=======
+
                          {!! $form->render('body') !!}
->>>>>>> refs/remotes/zofe/master
+
                     </div>
                     
                     

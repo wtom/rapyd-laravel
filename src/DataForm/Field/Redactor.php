@@ -30,9 +30,23 @@ class Redactor extends Field
       case "modify":
 
         Rapyd::js('tinymce/tinymce.min.js');
+        Rapyd::js('tinymce/tinymce_editor.js');
         $output  = Form::textarea($this->name, $this->value, $this->attributes);
-        Rapyd::script("tinymce.init({selector: '#".$this->name."'});");
-
+	Rapyd::script("function elFinderBrowser (field_name, url, type, win) {" .
+		      "tinymce.activeEditor.windowManager.open({" .
+		      "file: '" . route('elfinder.tinymce4') . "'," .
+		      "title: 'elFinder 2.0'," .
+		      "width: 900," .
+		      "height: 450," .
+		      "resizable: 'yes'" .
+		      "}, {" .
+		      "setUrl: function (url) {" .
+		      "win.document.getElementById(field_name).value = url;" .
+		      "}" .
+		      "});" .
+		      "return false;" .
+		      "}");
+        Rapyd::script("tinymce.init({selector: '#".$this->name."', file_browser_callback : elFinderBrowser, plugins: 'image', convert_urls: false});");
         break;
 
       case "hidden":
