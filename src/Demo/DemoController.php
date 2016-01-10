@@ -19,17 +19,10 @@ use Zofe\Rapyd\Facades\DataFilter;
 
 class DemoController extends Controller
 {
-    protected function setupLayout()
-    {
-        $is_rapyd = (Request::server('HTTP_HOST') == "www.rapyd.com") ? true : false;
-        View::composer('rapyd::demo.*', function ($view) use ($is_rapyd) {
-            $view->with('is_rapyd', $is_rapyd);
-        });
-    }
 
     public function getIndex()
     {
-        return  View::make('rapyd::demo.demo', compact('is_rapyd'));
+        return  View::make('rapyd::demo.demo');
     }
 
     public function getModels()
@@ -140,6 +133,7 @@ class DemoController extends Controller
     public function getSet()
     {
         $set = DataSet::source(Article::with('author', 'categories'));
+        $set->addOrderBy(['title','id']);
         $set->paginate(9);
         $set->build();
 

@@ -2,7 +2,10 @@
 
 @section('title','Demo')
 
+
 @section('body')
+    
+    
     <h1>Demo Index</h1>
 
     @if(Session::has('message'))
@@ -42,6 +45,7 @@
 
     @yield('body')
 
-    @include('rapyd::demo.disqus')
+
+
 
 @stop

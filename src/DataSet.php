@@ -29,9 +29,11 @@ class DataSet extends Widget
      * @var \Illuminate\Pagination\Paginator
      */
     public $paginator;
-
+    protected $orderby_check = false;
+    protected $orderby_fields = [];
     protected $orderby_field;
     protected $orderby_direction;
+
     protected $type;
     protected $limit;
     protected $orderby;
@@ -167,7 +169,9 @@ class DataSet extends Widget
         if ($orderby) {
             $this->orderby_field = ltrim($orderby, "-");
             $this->orderby_direction = ($orderby[0] === "-") ? "desc" : "asc";
-            $this->orderBy($this->orderby_field, $this->orderby_direction);
+            if ($this->canOrderby($this->orderby_field)) {
+                $this->orderBy($this->orderby_field, $this->orderby_direction);
+            }
         }
 
         //build subset of data
@@ -188,11 +192,13 @@ class DataSet extends Widget
                 }
 
                 $limit = $this->limit ? $this->limit : 100000;
-                $offset = (max(Paginator::resolveCurrentPage()-1,0)) * $limit;
+                $current_page = $this->url->value('page'.$this->cid, 0);
+                $offset = (max($current_page-1,0)) * $limit;
                 $this->data = array_slice($this->source, $offset, $limit);
-                $this->paginator = new LengthAwarePaginator($this->data, count($this->source), $limit, Paginator::resolveCurrentPage(),
-                    ['path' => Paginator::resolveCurrentPath()]);
-
+                $this->paginator = new LengthAwarePaginator($this->data, count($this->source), $limit, $current_page,
+                    ['path' => Paginator::resolveCurrentPath(),
+                    'pageName' => "page".$this->cid,
+                    ]);
                 break;
 
             case "query":
@@ -203,8 +209,9 @@ class DataSet extends Widget
                     $this->query = $this->query->orderBy($this->orderby[0], $this->orderby[1]);
                 }
                 //limit-offset
-                if (isset($this->limit)) {
-                    $this->paginator = $this->query->paginate($this->limit);
+                if (isset($this->limit)){
+                    
+                    $this->paginator = $this->query->paginate($this->limit, ['*'], 'page'.$this->cid);
                     $this->data = $this->paginator;
                 } else {
                     $this->data = $this->query->get();
@@ -212,7 +219,6 @@ class DataSet extends Widget
 
                 break;
         }
-
         return $this;
     }
 
@@ -243,9 +249,11 @@ class DataSet extends Widget
     {
         if ($this->limit) {
             if ($this->hash != '')
-                return $this->paginator->appends($this->url->remove('page')->getArray())->fragment($this->hash)->render($view);
+                $links =  $this->paginator->appends($this->url->remove('page'.$this->cid)->getArray())->fragment($this->hash)->render($view);
             else
-                return $this->paginator->appends($this->url->remove('page')->getArray())->render($view);
+                $links =  $this->paginator->appends($this->url->remove('page'.$this->cid)->getArray())->render($view);
+            
+            return str_replace('/?', '?', $links);
         }
     }
 
@@ -254,4 +262,22 @@ class DataSet extends Widget
         return (bool) $this->limit;
     }
 
+    /**
+     * add the ability to check & enable "order by" of given field/s 
+     * by default you can order by 
+     * 
+     * @param mixed $fieldname
+     */
+    public function addOrderBy($fieldname)
+    {
+        $this->orderby_check = true;
+        $this->orderby_fields = array_merge($this->orderby_fields, (array)$fieldname);
+        
+        return $this;
+    }
+    
+    protected function canOrderby($fieldname)
+    {
+        return (!$this->orderby_check || in_array($fieldname, $this->orderby_fields)); 
+    }
 }
