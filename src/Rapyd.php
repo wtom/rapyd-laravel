@@ -1,7 +1,7 @@
 <?php namespace Zofe\Rapyd;
 
 use Illuminate\Container\Container;
-use Illuminate\Html\HtmlFacade as HTML;
+use Collective\Html\HtmlFacade as HTML;
 use Illuminate\Support\Facades\Input;
 
 class Rapyd
@@ -28,7 +28,7 @@ class Rapyd
     /**
      * Get the Container from Rapyd
      *
-     * @param  string    $service 
+     * @param  string    $service
      * @return Container
      */
     public static function getContainer($service = null)
@@ -93,7 +93,7 @@ class Rapyd
         }
 
         if ($demo) {
-            $buffer .= HTML::style('packages/zofe/rapyd/assets/demo/style.css'); 
+            $buffer .= HTML::style('packages/zofe/rapyd/assets/demo/style.css');
         }
         //inline styles
         if (count(self::$styles)) {
