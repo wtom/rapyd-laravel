@@ -485,7 +485,12 @@ abstract class Field extends Widget
         if (isset($this->new_value)) {
             $data = $this->new_value;
         } else {
-            $data = $this->value;
+            if ($this->type != 'checks') {
+                $data = $this->value;    
+            }
+            else {
+                $data = '';
+            }
         }
         if ($this->relation != null) {
 
