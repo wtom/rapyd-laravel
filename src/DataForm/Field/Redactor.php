@@ -3,6 +3,8 @@
 
 use Collective\Html\FormFacade as Form;
 use Zofe\Rapyd\Rapyd;
+use Illuminate\Support\Facades\Config;
+
 class Redactor extends Field
 {
   public $type = "text";
@@ -46,7 +48,9 @@ class Redactor extends Field
 		      "});" .
 		      "return false;" .
 		      "}");
-        Rapyd::script("tinymce.init({selector: '#".$this->name."', file_browser_callback : elFinderBrowser, plugins: 'image', convert_urls: false});");
+		$tinymceLang = Config::get('rapyd.tinymce.language');
+		$initLang = $tinymceLang ? ", language: '{$tinymceLang}'" : ''; 
+        Rapyd::script("tinymce.init({selector: '#".$this->name."', file_browser_callback : elFinderBrowser, plugins: 'image', convert_urls: false{$initLang}});");
         break;
 
       case "hidden":
