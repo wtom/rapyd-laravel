@@ -501,7 +501,7 @@ abstract class Field extends Widget
                     $old_data = $this->relation->get()->modelKeys();
                     $new_data = explode($this->serialization_sep, $data);
 
-                    if (count(array_diff($old_data, $new_data)) == 0) {
+                    if ($old_data == $new_data) {
                         continue;
                     }
 
