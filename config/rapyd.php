@@ -36,5 +36,14 @@ return [
     'field'=> [
         'attributes' => ['class'=>'form-control'],
     ],
+	
+	/*
+	|--------------------------------------------------------------------------
+	| TinyMCE configuration
+	|--------------------------------------------------------------------------
+	*/
+	'tinymce' => [
+		'language' => false // Could be any value equal to filename from folder `public\assets\tinymce\langs` (ex. 'en_GB') or `false`
+	]
 ];
 
