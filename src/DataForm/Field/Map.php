@@ -10,46 +10,71 @@ class Map extends Field
 {
 
     public $type = "map";
+    public $lat = "lat";
+    public $lon = "lon";
+    public $zoom = 12;
+
+    public function latlon($lat, $lon)
+    {
+        $this->lat = $lat;
+        $this->lon = $lon;
+        return $this;
+    }
+
+    public function zoom($zoom)
+    {
+        $this->zoom = $zoom;
+        return $this;
+    }
+
+    public function getValue()
+    {
+        $process = (Input::get('search') || Input::get('save')) ? true : false;
+
+        if ($this->request_refill == true && $process && Input::exists($this->lat) ) {
+            $this->value['lat'] = Input::get($this->lat);
+            $this->value['lon'] = Input::get($this->lon);
+            $this->is_refill = true;
+
+        } elseif (($this->status == "create") && ($this->insert_value != null)) {
+            $this->value = $this->insert_value;
+        } elseif (($this->status == "modify") && ($this->update_value != null)) {
+            $this->value = $this->update_value;
+        } elseif (isset($this->model)) {
+            $this->value['lat'] = $this->model->getAttribute($this->lat);
+            $this->value['lon'] = $this->model->getAttribute($this->lon);
+            $this->description =  implode(',', array_values($this->value));
+        }
+    }
+
+    public function getNewValue()
+    {
+        $process = (Input::get('search') || Input::get('save')) ? true : false;
+        if ($process && Input::exists($this->lat)) {
+            $this->new_value['lat'] = Input::get($this->lat);
+            $this->new_value['lon'] = Input::get($this->lon);
+
+        } elseif (($this->action == "insert") && ($this->insert_value != null)) {
+            $this->edited = true;
+            $this->new_value = $this->insert_value;
+        } elseif (($this->action == "update") && ($this->update_value != null)) {
+            $this->edited = true;
+            $this->new_value = $this->update_value;
+        }
+    }
 
     public function autoUpdate($save = false)
     {
-
-        $this->getValue();
-
-        if ((($this->action == "update") || ($this->action == "insert"))) {
-
-            if (Input::hasFile($this->name)) {
-                $this->file = Input::file($this->name);
-
-                $filename = ($this->filename!='') ?  $this->filename : $this->file->getClientOriginalName();
-
-                //se il nuovo file è diverso,  dovrei cancellare il vecchio
-
-
-                $uploaded = $this->file->move($this->path, $filename);
-                $this->saved = $this->path. $filename;
-
-                if ($uploaded && is_object($this->model) && isset($this->db_name)) {
-
-                    if (!Schema::hasColumn($this->model->getTable(), $this->db_name)) {
-                         return true;
-                    }
-
-                    $this->new_value = $filename;
-
-                    if (isset($this->new_value)) {
-                        $this->model->setAttribute($this->db_name, $this->new_value);
-                    } else {
-                        $this->model->setAttribute($this->db_name, $this->value);
-                    }
-                    if ($save) {
-                        return $this->model->save();
-                    }
-                }
-
+        if (isset($this->model))
+        {
+            $this->getValue();
+            $this->getNewValue();
+            $this->model->setAttribute($this->lat, $this->new_value['lat']);
+            $this->model->setAttribute($this->lon, $this->new_value['lon']);
+            if ($save) {
+                return $this->model->save();
             }
         }
-
         return true;
     }
 
@@ -69,66 +94,63 @@ class Map extends Field
                 } elseif ((!isset($this->value))) {
                     $output = $this->layout['null_label'];
                 } else {
-                    //immagine statica della mappa su lat e lon  su api google
-                    $output = nl2br(htmlspecialchars($this->value));
+                    $output = "<img border=\"0\" src=\"//maps.googleapis.com/maps/api/staticmap?center={$this->value['lat']},{$this->value['lon']}&zoom={$this->zoom}&size=500x500\">";
+
                 }
                 $output = "<div class='help-block'>" . $output . "</div>";
                 break;
 
             case "create":
             case "modify":
-                $output  = Form::text($this->lat, $this->attributes);
-                $output .= Form::text($this->lon, $this->attributes);
+                $output  = Form::hidden($this->lat, $this->value['lat'], ['id'=>$this->lat]);
+                $output .= Form::hidden($this->lon, $this->value['lon'], ['id'=>$this->lon]);
+                $output .= '<div id="map_'.$this->name.'" style="width:500px; height:500px"></div>';
+                $output .= '<script src="https://maps.googleapis.com/maps/api/js?v=3.exp"></script>';
 
-//            <input type="text" id="latitude" placeholder="latitude">
-//  <input type="text" id="longitude" placeholder="longitude">
-//  <div id="map" style="width:500px; height:500px"></div>
+                \Rapyd::script("
 
-//  <script src="https://maps.googleapis.com/maps/api/js?v=3.exp&sensor=false"></script>
-  <script>
-    function initialize()
-    {
-        var $latitude = document.getElementById('latitude');
-        var $longitude = document.getElementById('longitude');
-        var latitude = 50.715591133433854
-        var longitude = -3.53485107421875;
-        var zoom = 7;
+            function initialize()
+            {
+                var latitude = document.getElementById('{$this->lat}');
+                var longitude = document.getElementById('{$this->lon}');
+                var zoom = {$this->zoom};
 
-        var LatLng = new google.maps.LatLng(latitude, longitude);
+                var LatLng = new google.maps.LatLng(latitude.value, longitude.value);
 
-        var mapOptions = {
-            zoom: zoom,
-            center: LatLng,
-            panControl: false,
-            zoomControl: false,
-            scaleControl: true,
-            mapTypeId: google.maps.MapTypeId.ROADMAP
-        }
+                var mapOptions = {
+                    zoom: zoom,
+                    center: LatLng,
+                    panControl: false,
+                    zoomControl: true,
+                    scaleControl: true,
+                    mapTypeId: google.maps.MapTypeId.ROADMAP
+                }
 
-        var map = new google.maps.Map(document.getElementById('map'),mapOptions);
+                var map = new google.maps.Map(document.getElementById('map_{$this->name}'),mapOptions);
+                var marker = new google.maps.Marker({
+                    position: LatLng,
+                    map: map,
+                    title: 'Drag Me!',
+                    draggable: true
+                });
 
-        var marker = new google.maps.Marker({
-            position: LatLng,
-            map: map,
-            title: 'Drag Me!',
-            draggable: true
-        });
+                var update_hidden_fields = function () {
+                    latitude.value = marker.getPosition().lat();
+                    longitude.value = marker.getPosition().lng();
+                }
+                google.maps.event.addListener(marker, 'dragend', update_hidden_fields);
 
-        google.maps.event.addListener(marker, 'dragend', function (marker) {
-            var latLng = marker.latLng;
-            $latitude.value = latLng.lat();
-            $longitude.value = latLng.lng();
-        });
-
-    }
-    initialize();
-    </script>
-
+                $(document.getElementById('map_{$this->name}')).data('map', map);
+                $(document.getElementById('map_{$this->name}')).data('marker', marker);
+                $(document.getElementById('map_{$this->name}')).data('update_hidden_fields', update_hidden_fields);
+            }
+            initialize();
+        ");
 
                 break;
 
             case "hidden":
-                $output = Form::hidden($this->db_name, $this->value);
+                $output = '';//Form::hidden($this->db_name, $this->value);
                 break;
 
             default:;
