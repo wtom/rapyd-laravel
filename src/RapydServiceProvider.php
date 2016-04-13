@@ -23,23 +23,15 @@ class RapydServiceProvider extends ServiceProvider
         $this->publishes([__DIR__.'/../config/rapyd.php' => config_path('rapyd.php')], 'config');
         $this->mergeConfigFrom( __DIR__.'/../config/rapyd.php', 'rapyd');
 
-        
-<<<<<<< HEAD
-        $this->publishes([
-            __DIR__.'/../config/rapyd.php' => config_path('rapyd.php'),
-        ], 'config');
 
-=======
         
         $this->publishes([
             __DIR__.'/routes.php' => app_path('/Http/rapyd.php'),
         ], 'routes');
->>>>>>> refs/remotes/zofe/master
 
 
-<<<<<<< HEAD
-        include __DIR__ . '/routes.php';
-=======
+
+
         if (! $this->app->routesAreCached()) {
             require __DIR__.'/routes.php';
         }
@@ -51,7 +43,6 @@ class RapydServiceProvider extends ServiceProvider
             include __DIR__ . '/routes.php';
         }
        
->>>>>>> refs/remotes/zofe/master
         include __DIR__ . '/macro.php';
     }
 
@@ -62,15 +53,11 @@ class RapydServiceProvider extends ServiceProvider
      */
     public function register()
     {
-<<<<<<< HEAD
-        $this->app->register('Collective\Html\HtmlServiceProvider');
- 
-=======
+
         
         $this->app->register('Collective\Html\HtmlServiceProvider');
         $this->app->register('Zofe\Burp\BurpServiceProvider');
         
->>>>>>> refs/remotes/zofe/master
         Rapyd::setContainer($this->app);
    
         $this->app->booting(function () {

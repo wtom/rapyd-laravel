@@ -5,10 +5,7 @@ namespace Zofe\Rapyd\DataFilter;
 use Zofe\Rapyd\DataForm\DataForm;
 use Zofe\Rapyd\Persistence;
 use Collective\Html\FormFacade as Form;
-<<<<<<< HEAD
 
-=======
->>>>>>> refs/remotes/zofe/master
 use Illuminate\Support\Facades\DB;
 
 class DataFilter extends DataForm

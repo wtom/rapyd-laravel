@@ -2,10 +2,7 @@
 
 namespace Zofe\Rapyd\DataForm\Field;
 
-<<<<<<< HEAD
 
-=======
->>>>>>> refs/remotes/zofe/master
 use Collective\Html\FormFacade as Form;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
