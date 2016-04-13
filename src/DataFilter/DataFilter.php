@@ -5,7 +5,10 @@ namespace Zofe\Rapyd\DataFilter;
 use Zofe\Rapyd\DataForm\DataForm;
 use Zofe\Rapyd\Persistence;
 use Collective\Html\FormFacade as Form;
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/zofe/master
 use Illuminate\Support\Facades\DB;
 
 class DataFilter extends DataForm
@@ -90,16 +93,23 @@ class DataFilter extends DataForm
 
                     //query scope
                     $query_scope = $field->query_scope;
+                    $query_scope_params = $field->query_scope_params;
                     if ($query_scope) {
 
                         if (is_a($query_scope, '\Closure')) {
-                            $this->query = $query_scope($this->query, $value);
+
+                            array_unshift($query_scope_params, $value);
+                            array_unshift($query_scope_params, $this->query);
+                            $this->query = call_user_func_array($query_scope, $query_scope_params);
 
                         } elseif (isset($this->model) && method_exists($this->model, "scope".$query_scope)) {
+                            
                             $query_scope = "scope".$query_scope;
-                            $this->query = $this->model->$query_scope($this->query, $value);
-
-                        }
+                            array_unshift($query_scope_params, $value);
+                            array_unshift($query_scope_params, $this->query);
+                            $this->query = call_user_func_array([$this->model, $query_scope], $query_scope_params);
+                            
+                        } 
                         continue;
                     }
 
@@ -108,16 +118,17 @@ class DataFilter extends DataForm
 
                     if (isset($this->model) && $field->relation != null) {
                         $rel_type = get_class($field->relation);
-                        if (in_array($rel_type,
-                            array('Illuminate\Database\Eloquent\Relations\HasOne',
-                                  'Illuminate\Database\Eloquent\Relations\HasMany',
-                                  'Illuminate\Database\Eloquent\Relations\BelongsTo',
-                                  'Illuminate\Database\Eloquent\Relations\BelongsToMany'
 
-                            )))
-                        {
-                            if ($rel_type == 'Illuminate\Database\Eloquent\Relations\BelongsTo' and
-                                in_array($field->type, array('select', 'radiogroup', 'autocomplete'))){
+                        if (
+                            is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\HasOne')
+                            || is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\HasMany')
+                            || is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\BelongsTo')
+                            || is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\BelongsToMany')
+                        ){
+                            if (
+                                is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\BelongsTo') and
+                                in_array($field->type, array('select', 'radiogroup', 'autocomplete'))
+                            ){
                                     $deep_where = false;
                             } else {
                                 $deep_where = true;
@@ -134,12 +145,15 @@ class DataFilter extends DataForm
                         }
 
                         //$value = $field->value;
-
+                       
                         if ($deep_where) {
                             //exception for multiple value fields on BelongsToMany
-                            if ($rel_type == 'Illuminate\Database\Eloquent\Relations\BelongsToMany' and
-                                in_array($field->type, array('tags','checks'))  )
-                            {
+                            if (
+                                (is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\BelongsToMany')
+                                || is_a($field->relation, 'Illuminate\Database\Eloquent\Relations\BelongsTo')
+                                ) and
+                                in_array($field->type, array('tags','checks','multiselect'))
+                            ){
                                   $values = explode($field->serialization_sep, $value);
 
                                   if ($field->clause == 'wherein') {
@@ -238,6 +252,9 @@ class DataFilter extends DataForm
                                     break;
                                 case "orwhere":
                                     $this->query = $this->query->orWhere($name, $field->operator, $value);
+                                    break;
+                                case "wherein":
+                                    $this->query = $this->query->whereIn($name,  explode($field->serialization_sep, $value));
                                     break;
                                 case "wherebetween":
                                     $values = explode($field->serialization_sep, $value);

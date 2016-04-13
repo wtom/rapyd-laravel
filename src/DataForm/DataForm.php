@@ -15,6 +15,8 @@ use Zofe\Rapyd\DataForm\Field\Radiogroup;
 use Zofe\Rapyd\DataForm\Field\Redactor;
 use Zofe\Rapyd\DataForm\Field\Select;
 use Zofe\Rapyd\DataForm\Field\Tags;
+use Zofe\Rapyd\DataForm\Field\Number;
+use Zofe\Rapyd\DataForm\Field\Numberrange;
 use Zofe\Rapyd\DataForm\Field\Text;
 use Zofe\Rapyd\DataForm\Field\Textarea;
 use Zofe\Rapyd\Widget;
@@ -39,6 +41,8 @@ use Zofe\Rapyd\Rapyd;
  * @method Redactor     redactor    (string $name, string $label, string $validation = '')
  * @method Autocomplete autocomplete(string $name, string $label, string $validation = '')
  * @method Tags         tags        (string $name, string $label, string $validation = '')
+ * @method Number       number      (string $name, string $label, string $validation = '')
+ * @method Numberrange  numberrange (string $name, string $label, string $validation = '')
  * @method Colorpicker  colorpicker (string $name, string $label, string $validation = '')
  * @method Date         date        (string $name, string $label, string $validation = '')
  * @method Auto         auto        (string $name, string $label, string $validation = '')
@@ -53,6 +57,8 @@ use Zofe\Rapyd\Rapyd;
  * @method Redactor     addRedactor    (string $name, string $label, string $validation = '')
  * @method Autocomplete addAutocomplete(string $name, string $label, string $validation = '')
  * @method Tags         addTags        (string $name, string $label, string $validation = '')
+ * @method Number       addNumber      (string $name, string $label, string $validation = '')
+ * @method Numberrange  addNumberrange (string $name, string $label, string $validation = '')
  * @method Colorpicker  addColorpicker (string $name, string $label, string $validation = '')
  * @method Date         addDate        (string $name, string $label, string $validation = '')
  * @method Auto         addAuto        (string $name, string $label, string $validation = '')
@@ -67,6 +73,7 @@ class DataForm extends Widget
     public $validator;
 
     public $output = "";
+    public $custom_output = null;
     public $fields = array();
     public $hash = "";
     public $error = "";
@@ -80,6 +87,8 @@ class DataForm extends Widget
     protected $process_url = '';
     protected $view = 'rapyd::dataform';
     protected $orientation = 'horizontal';
+    protected $has_labels = true;
+    protected $has_placeholders = false;
     protected $form_callable = '';
 
     public function __construct()
@@ -197,8 +206,8 @@ class DataForm extends Widget
 
     /**
      * get field instance from fields array
-     * @param $field_name
-     * @param  array                      $ttributes
+     * @param string $field_name
+     * @param array $attributes
      * @return \Zofe\Rapyd\DataForm\Field $field
      */
     public function field($field_name, array $attributes = array())
@@ -343,6 +352,8 @@ class DataForm extends Widget
         foreach ($this->fields as $field) {
             $field->status = $this->status;
             $field->orientation = $this->orientation;
+            $field->has_label = $this->has_labels;
+            $field->has_placeholder = $this->has_placeholders;
             if ($messages and $messages->has($field->name)) {
                 $field->messages = $messages->get($field->name);
                 $field->has_error = " has-error";
@@ -467,6 +478,13 @@ class DataForm extends Widget
         if (isset($this->attributes['class']) and strpos($this->attributes['class'], 'form-inline') !== false) {
             $this->view = 'rapyd::dataform_inline';
             $this->orientation = 'inline';
+            $this->has_labels = false;
+        }
+        if (isset($this->attributes['class']) and strpos($this->attributes['class'], 'without-labels') !== false) {
+            $this->has_labels = false;
+        }
+        if (isset($this->attributes['class']) and strpos($this->attributes['class'], 'with-placeholders') !== false) {
+            $this->has_placeholders = true;
         }
         if ($this->output != '') return;
         if ($view != '') $this->view = $view;
@@ -479,7 +497,10 @@ class DataForm extends Widget
             $result = $callable($this);
             if ($result && is_a($result, 'Illuminate\Http\RedirectResponse')) {
                 $this->redirect = $result;
+            } elseif ($result && is_a($result, 'Illuminate\View\View')) {
+                $this->custom_output = $result;
             }
+            
             //reprocess if an error is added in closure
             if ($this->process_status == 'error') {
                 $this->process();
@@ -542,6 +563,14 @@ class DataForm extends Widget
     }
 
     /**
+     * @return bool
+     */
+    public function hasCustomOutput()
+    {
+        return ($this->custom_output != null) ? true : false;
+    }
+    
+    /**
      * @return string
      */
     public function getRedirect()
@@ -555,7 +584,7 @@ class DataForm extends Widget
      *
      * @return View|Redirect
      */
-    public function view($viewname, $array = array())
+    public function view($viewname = 'rapyd::form', $array = [])
     {
         if (!isset($array['form'])) {
             $form = $this->getForm();
@@ -564,7 +593,9 @@ class DataForm extends Widget
         if ($this->hasRedirect()) {
             return (is_a($this->redirect, 'Illuminate\Http\RedirectResponse')) ? $this->redirect : Redirect::to($this->redirect);
         }
-
+        if ($this->hasCustomOutput()) {
+            return $this->custom_output;
+        }
         return View::make($viewname, $array);
     }
 
@@ -612,6 +643,13 @@ class DataForm extends Widget
 
     }
 
+    public function compact()
+    {
+        $this->has_labels = false;
+        $this->has_placeholders = true;
+        return $this;
+    }
+    
     /**
      * Magic method to catch all appends
      *

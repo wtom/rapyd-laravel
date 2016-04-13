@@ -1,6 +1,9 @@
 <?php namespace Zofe\Rapyd\DataForm\Field;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/zofe/master
 use Collective\Html\FormFacade as Form;
 use Zofe\Rapyd\Rapyd;
 class Redactor extends Field

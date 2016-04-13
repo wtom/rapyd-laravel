@@ -19,14 +19,39 @@ Nothing to "generate", just some classes to let you develop and maintain CRUD ba
  
 ![rapyd laravel](https://raw.github.com/zofe/rapyd-laravel/master/public/assets/rapyd-laravel.png)
  
-## important notice:
 
-dev-master switched to laravel 5  
-if you are on laravel 4 you must use 1.3.* tags (see at bottom)
+## Install in Laravel 5.2, 5.1, 5.0, 4.*
 
-The Wiki documentation is for Laravel 4 version, but changes are minimal, mainly related to Blade.  
-(you should use {!! $widget !!}  instead  {{ $widget }} etc..
+dev-master is on laravel 5.1  
 
+1. To `composer.json` add:  
+`"zofe/rapyd": "2.2.*"` for Laravel 5.2  
+`"zofe/rapyd": "2.1.*"` for Laravel 5.1  
+`"zofe/rapyd": "2.0.*"` for Laravel 5.0  
+`"zofe/rapyd": "1.3.*"` for Laravel 4.*  
+
+
+2. run `$ composer update zofe/rapyd`
+
+
+3. add this in the "provider" array on your config/app.php:  
+ `Zofe\Rapyd\RapydServiceProvider::class,`  
+  or for < 5.1  
+ `'Zofe\Rapyd\RapydServiceProvider',`
+
+
+4. then publish assets:  
+ `$ php artisan vendor:publish`  
+  or for < 5.0  
+ `$ php artisan asset:publish zofe/rapyd`  
+ `$ php artisan config:publish zofe/rapyd`
+
+
+5. (optional) enable demo, uncomment the route:  
+```php
+#  /app/Http/rapyd.php
+// Route::controller('rapyd-demo','\Zofe\Rapyd\Demo\DemoController');
+```
 
 ## DataGrid
 
@@ -37,7 +62,7 @@ It support also blade syntax, filters, closures etc..
 in a controller 
 
 ```php
-   $grid = DataGrid::source(Article::with('author'));  //same source types of DataSet
+   $grid = \DataGrid::source(Article::with('author'));  //same source types of DataSet
    
    $grid->add('title','Title', true); //field name, label, sortable
    $grid->add('author.fullname','author'); //relation.fieldname 
@@ -46,11 +71,25 @@ in a controller
    $grid->add('body|strip_tags|substr[0,20]','Body'); //filter (similar to twig syntax)
    $grid->add('body','Body')->filter('strip_tags|substr[0,20]'); //another way to filter
    $grid->edit('/articles/edit', 'Edit','modify|delete'); //shortcut to link DataEdit actions
+   
+   //cell closure
+   $grid->add('revision','Revision')->cell( function( $value, $row) {
+        return ($value != '') ? "rev.{$value}" : "no revisions for art. {$row->id}";
+   });
+   
+   //row closure
+   $grid->row(function ($row) {
+       if ($row->cell('public')->value < 1) {
+           $row->cell('title')->style("color:Gray");
+           $row->style("background-color:#CCFF66");
+       }  
+   });
+   
    $grid->link('/articles/edit',"Add New", "TR");  //add button
    $grid->orderBy('article_id','desc'); //default orderby
    $grid->paginate(10); //pagination
 
-   View::make('articles', compact('grid'))
+   view('articles', compact('grid'))
 
 ```
 
@@ -59,8 +98,8 @@ in a view you can just write
 ```php
 
   #articles.blade.php  
-  {{ $grid }} for L4   
-  {!! $grid !!} for L5  
+
+  {!! $grid !!} 
 
 ```
 
@@ -104,25 +143,32 @@ datagrid supports also csv output, so it can be used as "report" tool.
 
 ```php
    //start with empty form to create new Article
-   $form = DataForm::source(new Article);
+   $form = \DataForm::source(new Article);
    
    //or find a record to update some value
-   $form = DataForm::source(Article::find(1));
+   $form = \DataForm::source(Article::find(1));
 
    //add fields to the form
    $form->add('title','Title', 'text'); //field name, label, type
    $form->add('body','Body', 'textarea')->rule('required'); //validation
 
-   //some enhanced field (images, wysiwyg, autocomplete, etc..):
+   //some enhanced field (images, wysiwyg, autocomplete, maps, etc..):
    $form->add('photo','Photo', 'image')->move('uploads/images/')->preview(80,80);
    $form->add('body','Body', 'redactor'); //wysiwyg editor
-   $form->add('author.name','Author','autocomplete')->search(array('firstname','lastname'));
+   $form->add('author.name','Author','autocomplete')->search(['firstname','lastname']);
    $form->add('categories.name','Categories','tags'); //tags field
- 
+   $form->add('map','Position','map')->latlon('latitude','longitude'); //google map
+
+
    //you can also use now the smart syntax for all fields: 
    $form->text('title','Title'); //field name, label
    $form->textarea('body','Body')->rule('required'); //validation
+ 
+   //change form orientation
+   $form->attributes(['class'=>'form-inline']);
+ 
    ...
+ 
  
    $form->submit('Save');
    $form->saved(function() use ($form)
@@ -131,13 +177,13 @@ datagrid supports also csv output, so it can be used as "report" tool.
         $form->link("/another/url","Next Step");
    });
 
-   View::make('article', compact('form'))
+   view('article', compact('form'))
 ```
 
 ```php
    #article.blade.php
-  {{ $form }}  for L4  
-  {!! $form !!}  for L5
+
+  {!! $form !!}
 ```
 
 [DataForm explained](https://github.com/zofe/rapyd-laravel/wiki/DataForm)  
@@ -150,7 +196,7 @@ You can directly customize form  using build() in your controller
  ```php
      ...
      $form->build();
-     View::make('article', compact('form'))
+     view('article', compact('form'))
  ```
  then in the view you can use something like this:
  
@@ -194,15 +240,15 @@ You can directly customize form  using build() in your controller
 
 ```php
    //simple crud for Article entity
-   $edit = DataEdit::source(new Article);
+   $edit = \DataEdit::source(new Article);
    $edit->link("article/list","Articles", "TR")->back();
    $edit->add('title','Title', 'text')->rule('required');
    $edit->add('body','Body','textarea')->rule('required');
-   $edit->add('author.name','Author','autocomplete')->search(array('firstname','lastname'));
+   $edit->add('author.name','Author','autocomplete')->search(['firstname','lastname']);
    
    //you can also use now the smart syntax for all fields: 
    $edit->textarea('title','Title'); 
-   $edit->autocomplete('author.name','Author')->search(array('firstname','lastname'));
+   $edit->autocomplete('author.name','Author')->search(['firstname','lastname']);
    
    return $edit->view('crud', compact('edit'));
 
@@ -210,9 +256,8 @@ You can directly customize form  using build() in your controller
 
 ```php
    #crud.blade.php
-   
-  {{ $edit }} for L4   
-  {!! $edit !!} for L5
+ 
+  {!! $edit !!} 
 ```
 [DataEdit explained](https://github.com/zofe/rapyd-laravel/wiki/DataEdit)  
 
@@ -220,31 +265,44 @@ You can directly customize form  using build() in your controller
 ## DataFilter
 DataFilter extends DataForm, each field you add and each value you fill in that form is used to build a __where clause__ (by default using 'like' operator).   
 It should be used in conjunction with a DataSet or DataGrid to filter results.  
+It also support query scopes (see eloquent documentation), closures, and a cool DeepHasScope trait see samples:
 
 
 ```php
-   $filter = DataFilter::source(new Article);
-   $filter->attributes(array('class'=>'form-inline'));
+   $filter = \DataFilter::source(new Article);
+
+   //simple like 
    $filter->add('title','Title', 'text');
+          
+   //simple where with exact match
+   $filter->add('id', 'ID', 'text')->clause('where')->operator('=');
+          
+   //custom query scope, you can define the query logic in your model
+   $filter->add('search','Search text', 'text')->scope('myscope');
+      
+   //cool deep "whereHas" (you must use DeepHasScope trait bundled on your model)
+   //this can build a where on a very deep relation.field
+   $filter->add('search','Search text', 'text')->scope('hasRel','relation.relation.field');
+   
+   //closure query scope, you can define on the fly the where
+   $filter->add('search','Search text', 'text')->scope( function ($query, $value) {
+         return $query->whereIn('field', ["1","3",$value]);
+   })
+   
    $filter->submit('search');
    $filter->reset('reset');
    
-   $grid = DataGrid::source($filter);
+   $grid = \DataGrid::source($filter);
    $grid->add('nome','Title', true);
    $grid->add('{{ substr($body,0,20) }}...','Body');
    $grid->paginate(10);
 
-   View::make('articles', compact('filter', 'grid'))
+   view('articles', compact('filter', 'grid'))
 ```
 
 ```php
    # articles.blade
    
-   //for L4  
-   {{ $filter }}  
-   {{ $grid }}  
-
-    //for L5 
    {!! $filter !!}  
    {!! $grid !!}
 
@@ -254,18 +312,25 @@ It should be used in conjunction with a DataSet or DataGrid to filter results.
 [Custom layout and custom query scope](http://www.rapyd.com/rapyd-demo/customfilter) 
 
 
-## Install in Laravel 4.* and 5.0
+## DataTree
 
+The DataTree extends the DataGrid, and displays sortable tree widget. It supports all the
+methods of the DataGrid with the exception of pagination and sorting. Another difference is
+you need to pass in an already loaded Baum Model, not an empty Model or Query Builder.
 
-To `composer.json` add:  
-`"zofe/rapyd": "1.3.*"` for Laravel 4, not frequently updated (should be stable)  
-`"zofe/rapyd": "2.0.*"` or _dev-master_ for Laravel 5 (kudos to @tiger2wander for PR)
+To use this widget you need to `php composer.phar require baum/baum` and make sure your
+model extends `Baum\Node`.
 
+```php
+    // the root node won't appear, only its sub-nodes will be displayed.
+    $root = Menu::find(1) or App::abort(404);
 
-In `app/config/app.php` add:  
-`'Zofe\Rapyd\RapydServiceProvider',`
-
-then run: `$ composer update zofe/rapyd`.
+    $tree = \DataTree::source($root);
+    $tree->add('title');
+    $tree->edit("/menu/edit", 'Edit', 'modify|delete');
+    $tree->submit('Save the order');
+    return view('menu-list', compact('tree'));
+```
 
 
 ## Namespace consideration, Extending etc.
@@ -299,14 +364,6 @@ To use widgets you can:
 You can quickly publish the configuration file (to override something) 
 by running the following Artisan command.  
 
-Laravel 4
-
-    $ php artisan config:publish zofe/rapyd  
-    $ php artisan asset:publish zofe/rapyd
-
-
-Laravel 5
-
     $ php artisan vendor:publish  
     
 
@@ -320,8 +377,7 @@ You need also to add this to your views, to let rapyd add runtime assets:
 <script src="http://code.jquery.com/jquery-1.10.1.min.js"></script>
 <script src="//netdna.bootstrapcdn.com/bootstrap/3.2.0/js/bootstrap.min.js"></script>
 
-{{ Rapyd::head() }}  for L4   
-{!! Rapyd::head() !!}  for L5
+{!! Rapyd::head() !!} 
 
 </head>
 ```
@@ -361,17 +417,8 @@ An easy way to work with rapyd is:
   * make an empty view, include bootstrap and display content that rapyd will build for you
 
 
-Rapyd comes with demo (controller, models, views)  to run it just add:
-
-
-/app/routes.php  (Laravel 4)
-```php
-....
-Route::controller('rapyd-demo', 'Zofe\\Rapyd\\Controllers\\DemoController');
-```
-for Laravel 5 the route is already defined, you sould find rapyd routes in `app/Http/rapyd.php`  
-
-then go to:
+Rapyd comes with demo (controller, models, views) a route is defined in `app/Http/rapyd.php`  
+so go to:
 
 /rapyd-demo
 

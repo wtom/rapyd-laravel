@@ -2,7 +2,10 @@
 
 namespace Zofe\Rapyd\DataForm\Field;
 
+<<<<<<< HEAD
 
+=======
+>>>>>>> refs/remotes/zofe/master
 use Collective\Html\FormFacade as Form;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Support\Facades\Session;
@@ -45,6 +48,18 @@ class Autocomplete extends Field
 
         return $this;
 
+    }
+
+    public function minChars($len)
+    {
+        $this->min_chars = $len;
+        return $this;
+    }
+
+    public function mustMatch($bool)
+    {
+        $this->must_match = $bool;
+        return $this;
     }
 
     public function getValue()
@@ -153,28 +168,57 @@ class Autocomplete extends Field
                     var blod_{$this->name} = new Bloodhound({
                         datumTokenizer: Bloodhound.tokenizers.obj.whitespace('auto_{$this->name}'),
                         queryTokenizer: Bloodhound.tokenizers.whitespace,
-                        remote: '{$this->remote}?q=%QUERY'
+                        remote: {
+                            url: '{$this->remote}?q=%QUERY',
+                            ajax: {
+                                complete: function(response){
+                                    response.responseJSON.forEach(function (item) {
+                                        blod_{$this->name}.valueCache[item.{$this->record_label}] = item.{$this->record_id};
+                                    });
+                                }
+                            }
+                        }
                     });
+                    blod_{$this->name}.valueCache = {};
                     blod_{$this->name}.initialize();
 
-                    $('#th_{$this->name} .typeahead').typeahead(null, {
-                        name: '{$this->name}',
-                        displayKey: '{$this->record_label}',
+                    $('#th_{$this->name} .typeahead').typeahead({
                         highlight: true,
                         minLength: {$this->min_chars},
+                    }, {
+                        displayKey: '{$this->record_label}',
+                        name: '{$this->name}',
                         source: blod_{$this->name}.ttAdapter(),
                         templates: {
                             suggestion: Handlebars.compile('{{{$this->record_label}}}')
                         }
                     }).on("typeahead:selected typeahead:autocompleted",
-                        function (e,data) { $('#{$this->name}').val(data.{$this->record_id});
-
-                    }).on("typeahead:closed",
                         function (e,data) {
-                            if ($(this).val() == '') {
-                                $('#{$this->name}').val('');
+                            $('#{$this->name}').val(data.{$this->record_id});
+                    }).on("typeahead:closed,typeahead:change",
+                        function (e,data) {
+                            if ('{$this->must_match}') {
+                                var _label = $.trim($(this).val());
+                                if ( !(_label in blod_{$this->name}.valueCache) ) {
+                                    $('#{$this->name}').val('');
+                                    $(this).val('');
+                                } else {
+                                    //Fill data to hidden input, when direct copy data to input without choose from auto-complete results.
+                                    $('#{$this->name}').val(blod_{$this->name}.valueCache[_label]);
+                                }
+                            } else {
+                                if ($(this).val() == '') {
+                                    $('#{$this->name}').val('');
+                                }
                             }
                     });
+                    $('#th_{$this->name} .typeahead').keypress(function (e) {
+                        if (e.which == 13) {
+                            e.preventDefault();
+                        }
+                    });
+                    
+                    
 acp;
 
                     Rapyd::script($script);

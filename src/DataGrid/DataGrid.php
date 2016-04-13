@@ -15,6 +15,8 @@ class DataGrid extends DataSet
     public $rows = array();
     public $output = "";
     public $attributes = array("class" => "table");
+    public $checkbox_form = false;
+    
     protected $row_callable = array();
 
     /**
@@ -58,7 +60,7 @@ class DataGrid extends DataSet
                 $cell->parseFilters($column->filters);
                 if ($column->cell_callable) {
                     $callable = $column->cell_callable;
-                    $cell->value($callable($cell->value));
+                    $cell->value($callable($cell->value, $tablerow));
                 }
                 $row->add($cell);
             }
@@ -149,7 +151,8 @@ class DataGrid extends DataSet
     protected function getCellValue($column, $tablerow, $sanitize = true)
     {
         //blade
-        if (strpos($column->name, '{{') !== false) {
+        if (strpos($column->name, '{{') !== false || 
+            strpos($column->name, '{!!') !== false) {
 
             if (is_object($tablerow) && method_exists($tablerow, "getAttributes")) {
                 $fields = $tablerow->getAttributes();
@@ -167,7 +170,8 @@ class DataGrid extends DataSet
         //eager loading smart syntax  relation.field
         } elseif (preg_match('#^[a-z0-9_-]+(?:\.[a-z0-9_-]+)+$#i',$column->name, $matches) && is_object($tablerow) ) {
             //switch to blade and god bless eloquent
-            $expression = '{{$'.trim(str_replace('.','->', $column->name)).'}}';
+            $_relation = '$'.trim(str_replace('.','->', $column->name));
+            $expression = '{{ isset('. $_relation .') ? ' . $_relation . ' : "" }}';
             $fields = $tablerow->getAttributes();
             $relations = $tablerow->getRelations();
             $array = array_merge($fields, $relations) ;
