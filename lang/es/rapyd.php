@@ -18,6 +18,7 @@ return array(
     'err'        => 'Error leyendo el registro',
     'err_unknown'=> 'Error, no se seleccionó el registro',
     'err_dup_pk' => 'Error, llave primaria duplicada',
+    'no_records' => 'No hay registros para mostrar.',
     'conf_delete'=> '¿Realmente desea eliminar este registro?',
     'empty_list' => 'No record is added !',
     'help'       => 'Ayuda',
