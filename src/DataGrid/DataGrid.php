@@ -73,16 +73,11 @@ class DataGrid extends DataSet
             }
             $this->rows[] = $row;
         }
-<<<<<<< HEAD
 
         $routeParamters = \Route::current()->parameters();
 
         return \View::make($view, array('dg' => $this, 'buttons'=>$this->button_container, 'label'=>$this->label,
 					'current_entity' => $routeParamters['entity']));
-=======
-        $this->output = \View::make($view, array('dg' => $this, 'buttons'=>$this->button_container, 'label'=>$this->label))->render();
-        return $this->output;
->>>>>>> refs/remotes/zofe/master
     }
 
     public function buildCSV($file = '', $timestamp = '', $sanitize = true,$del = array())
