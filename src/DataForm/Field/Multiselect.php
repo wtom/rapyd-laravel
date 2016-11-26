@@ -20,7 +20,11 @@ class Multiselect extends Field
     {
         parent::getValue();
 
-        $this->values = explode($this->serialization_sep, $this->value);
+        if (is_array($this->value)) {
+            $this->values = $this->value;
+        } else {
+            $this->values = explode($this->serialization_sep, $this->value);
+        }
 
         $description_arr = array();
         foreach ($this->options as $value => $description) {
@@ -57,6 +61,8 @@ class Multiselect extends Field
             case "create":
             case "modify":
                 $this->attributes['multiple'] = 'multiple';
+                $this->attributes['data-placeholder'] = $this->attributes['placeholder'];
+                $this->attributes['placeholder'] = null;
                 $output .= Form::select($this->name . '[]', $this->options, $this->values, $this->attributes);
                 $output .= $this->extra_output;
                 break;
@@ -67,6 +73,7 @@ class Multiselect extends Field
 
             default:
         }
+
         $this->output = $output;
     }
 }
