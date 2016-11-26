@@ -54,7 +54,6 @@ class RapydServiceProvider extends ServiceProvider
     public function register()
     {
 
-        
         $this->app->register('Collective\Html\HtmlServiceProvider');
         $this->app->register('Zofe\Burp\BurpServiceProvider');
         
@@ -62,6 +61,8 @@ class RapydServiceProvider extends ServiceProvider
    
         $this->app->booting(function () {
             $loader  =  \Illuminate\Foundation\AliasLoader::getInstance();
+
+            $loader->alias('Input', 'Illuminate\Support\Facades\Input');
             
             $loader->alias('Rapyd'     , 'Zofe\Rapyd\Facades\Rapyd'     );
             
@@ -74,6 +75,8 @@ class RapydServiceProvider extends ServiceProvider
             $loader->alias('DataEmbed' , 'Zofe\Rapyd\Facades\DataEmbed');
             $loader->alias('DataTree' , 'Zofe\Rapyd\Facades\DataTree');
             $loader->alias('Documenter', 'Zofe\Rapyd\Facades\Documenter');
+
+
         });
     }
 
