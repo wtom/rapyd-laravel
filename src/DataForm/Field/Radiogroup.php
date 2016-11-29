@@ -11,6 +11,11 @@ class Radiogroup extends Field
     public $separator = "&nbsp;&nbsp;";
     public $clause = "where";
 
+    public function separator($separator)
+    {
+        $this->separator = $separator;
+    }
+
     public function getValue()
     {
         parent::getValue();
@@ -45,7 +50,7 @@ class Radiogroup extends Field
                     $this->checked = (!is_null($this->value) and ($this->value == $val));
                     $output .= Form::radio($this->name, $val, $this->checked).' '. $label. $this->separator;
                 }
-                $output .= $this->extra_output;
+                $output = '<div>'.$output.'</div>'.$this->extra_output;
                 break;
 
             case "hidden":

@@ -30,11 +30,29 @@ return [
 
     /*
     |--------------------------------------------------------------------------
-    | Field Class
+    | Field's default configuration
     |--------------------------------------------------------------------------
     */
-    'field'=> [
+    'fields'=> [
         'attributes' => ['class'=>'form-control'],
+        'date' => [
+            'format' => 'm/d/Y',
+        ],
+        'datetime' => [
+            'format' => 'm/d/Y H:i:s',
+            'store_as' => 'Y-m-d H:i:s',
+        ],
     ],
+
+	
+	/*
+	|--------------------------------------------------------------------------
+	| TinyMCE configuration
+	|--------------------------------------------------------------------------
+	*/
+	'tinymce' => [
+		'language' => false // Could be any value equal to filename from folder `public\assets\tinymce\langs` (ex. 'en_GB') or `false`
+	]
+
 ];
 

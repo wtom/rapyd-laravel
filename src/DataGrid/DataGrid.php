@@ -15,6 +15,8 @@ class DataGrid extends DataSet
     public $rows = array();
     public $output = "";
     public $attributes = array("class" => "table");
+    public $checkbox_form = false;
+    
     protected $row_callable = array();
 
     /**
@@ -40,6 +42,7 @@ class DataGrid extends DataSet
     //todo: like "field" for DataForm, should be nice to work with "cell" as instance and "row" as collection of cells
     public function build($view = '')
     {
+        if ($this->output != '') return;
         ($view == '') and $view = 'rapyd::datagrid';
         parent::build();
 
@@ -58,7 +61,7 @@ class DataGrid extends DataSet
                 $cell->parseFilters($column->filters);
                 if ($column->cell_callable) {
                     $callable = $column->cell_callable;
-                    $cell->value($callable($cell->value));
+                    $cell->value($callable($cell->value, $tablerow));
                 }
                 $row->add($cell);
             }
@@ -73,8 +76,8 @@ class DataGrid extends DataSet
 
         $routeParamters = \Route::current()->parameters();
 
-        return \View::make($view, array('dg' => $this, 'buttons'=>$this->button_container, 'label'=>$this->label,
-					'current_entity' => $routeParamters['entity']));
+        $this->output = \View::make($view, array('dg' => $this, 'buttons'=>$this->button_container, 'label'=>$this->label,'current_entity' => $routeParamters['entity']))->render();
+        return $this->output;
     }
 
     public function buildCSV($file = '', $timestamp = '', $sanitize = true,$del = array())
@@ -123,6 +126,14 @@ class DataGrid extends DataSet
 
                 $cell = new Cell($column->name);
                 $value =  str_replace('"', '""',str_replace(PHP_EOL, '', strip_tags($this->getCellValue($column, $tablerow, $sanitize))));
+
+                // Excel for Mac is pretty stupid, and will break a cell containing \r, such as user input typed on a
+                // old Mac.
+                // On the other hand, PHP will not deal with the issue for use, see for instance:
+                // http://stackoverflow.com/questions/12498337/php-preg-replace-replacing-line-break
+                // We need to normalize \r and \r\n into \n, otherwise the CSV will break on Macs
+                $value = preg_replace('/\r\n|\n\r|\n|\r/', "\n", $value);
+
                 $cell->value($value);
                 $row->add($cell);
             }
@@ -149,7 +160,8 @@ class DataGrid extends DataSet
     protected function getCellValue($column, $tablerow, $sanitize = true)
     {
         //blade
-        if (strpos($column->name, '{{') !== false) {
+        if (strpos($column->name, '{{') !== false || 
+            strpos($column->name, '{!!') !== false) {
 
             if (is_object($tablerow) && method_exists($tablerow, "getAttributes")) {
                 $fields = $tablerow->getAttributes();
@@ -167,7 +179,8 @@ class DataGrid extends DataSet
         //eager loading smart syntax  relation.field
         } elseif (preg_match('#^[a-z0-9_-]+(?:\.[a-z0-9_-]+)+$#i',$column->name, $matches) && is_object($tablerow) ) {
             //switch to blade and god bless eloquent
-            $expression = '{{$'.trim(str_replace('.','->', $column->name)).'}}';
+            $_relation = '$'.trim(str_replace('.','->', $column->name));
+            $expression = '{{ isset('. $_relation .') ? ' . $_relation . ' : "" }}';
             $fields = $tablerow->getAttributes();
             $relations = $tablerow->getRelations();
             $array = array_merge($fields, $relations) ;
@@ -213,7 +226,7 @@ class DataGrid extends DataSet
 
     public function getGrid($view = '')
     {
-        $this->output = $this->build($view)->render();
+        $this->build($view);
 
         return $this->output;
     }
