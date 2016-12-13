@@ -52,7 +52,7 @@
             <div class="pull-left">
                 {!! $dg->links() !!}
             </div>
-            <div class="pull-right">
+            <div class="badge pull-right">
                 {!! $dg->totalRows() !!}
             </div>
         @endif
