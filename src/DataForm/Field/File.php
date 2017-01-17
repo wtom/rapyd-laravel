@@ -87,7 +87,7 @@ class File extends Field
 
                 $this->file = Input::file($this->name);
 
-                $filename = ($this->filename!='') ?  $this->filename : $this->file->getClientOriginalName();
+                $filename = ($this->filename!='') ?  $this->filename . '.' . $this->file->extension() : $this->file->getClientOriginalName();
 
                 $filename = $this->parseString($filename);
                 $filename = $this->sanitizeFilename($filename);
